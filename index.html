@@ -1,0 +1,57 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>The Achievers</title>
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#1d1d1f">
+<style>
+:root{--o:#ff7a1a;--k:#1d1d1f;--bg:#f7f4ef;--c:#fff;--m:#6b6b6b}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,"Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--k);padding:env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom))}
+header{background:var(--k);color:#fff;padding:12px 16px}header b{font-size:18px}header span{color:var(--o);font-size:13px;margin-left:8px}
+main{padding:12px;max-width:640px;margin:auto}
+.c{background:var(--c);border-radius:10px;padding:12px;margin:0 0 12px;border:1px solid #e6e0d6}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.g div{background:var(--bg);border-radius:6px;padding:8px;font-weight:700}.g small{display:block;color:var(--m);font-weight:400}
+input,select,button{font:inherit;padding:10px;margin:4px 0;width:100%;border:1px solid #cfc8bc;border-radius:6px;background:#fff}
+button{background:var(--o);color:#fff;border:0;font-weight:700}button.x{background:#fff;color:#c0392b;border:1px solid #c0392b;width:auto;padding:2px 8px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--k);padding-bottom:env(safe-area-inset-bottom)}nav a{flex:1;text-align:center;padding:14px 4px;color:#cfcfcf;font-size:14px}nav a.on{color:var(--o);font-weight:700}
+.r{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #eee}.bad{color:#c0392b}.mr{cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--o);outline-offset:2px}
+</style></head><body>
+<header><b>The Achievers</b><span>Trust the Process</span></header><main id="v"></main><nav id="n"></nav>
+<script>
+const API='https://script.google.com/macros/s/AKfycbxY0ZiAFUFfhbuqg4V0CVQ9zE8P7oJeASEsLw_EvFJ8MVp-Ykco_qVj42W6WRwe0A2C5Q/exec',L={M:'মাসিক',F:'জরিমানা',L:'এককালীন',O:'পূর্বের জমা',due:'বকেয়া',fine:'জরিমানা',member:'সদস্য',admin:'অ্যাডমিন',owner:'মূল অ্যাডমিন'};
+let tok=localStorage.tk||'',D=null,list=[],ex=[],tab='home',sel=null;
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),tk=n=>'৳'+(+n||0).toLocaleString('en-US');
+async function api(a,p){try{const r=await(await fetch(API,{method:'POST',body:JSON.stringify({...p,a,t:tok})})).json();if(!r.ok)throw r.e;return r.d}
+ catch(e){if(e=='session'){tok='';localStorage.tk='';D=null;go()}else alert(e);throw e}}
+const F=(a,b,fs)=>`<form class="c" data-a="${a}"><b>${b}</b>${fs.map(f=>{const[n,l,t,o]=f.split('|');
+ return t=='m'?`<select name="${n}">${list.map(m=>`<option value="${esc(m.id)}">${esc(m.id+' '+m.name)}</option>`).join('')}</select>`
+ :t=='s'?`<select name="${n}">${o.split(',').map(x=>`<option value="${x}">${L[x]||x}</option>`).join('')}</select>`
+ :`<input name="${n}" placeholder="${l}" type="${t||'text'}" ${n=='date'?`value="${new Date().toISOString().slice(0,10)}"`:''} autocomplete="off">`}).join('')}<button>${b}</button></form>`;
+const row=(a,b)=>`<div class="r"><span>${a}</span><span>${b}</span></div>`;
+const pg={
+home:()=>{const c=D.c,f=D.fund;return `<div class="c"><b>${esc(D.u.name)}</b> (${esc(D.u.id)})<div class="g"><div><small>মোট জমা</small>${tk(c.saved)}</div><div><small>বকেয়া</small><span class="${c.due?'bad':''}">${tk(c.due)}</span></div><div><small>জরিমানা</small>${tk(c.fine)}</div><div><small>অগ্রিম</small>${tk(c.adv)}</div></div></div>
+ <div class="c"><b>সমিতির তহবিল</b><div class="g"><div><small>মূল টাকা</small>${tk(f.principal)}</div><div><small>জরিমানা</small>${tk(f.fines)}</div><div><small>খরচ</small>${tk(f.exp)}</div><div><small>ব্যালেন্স</small>${tk(f.bal)}</div></div></div>
+ <div class="c"><b>সাম্প্রতিক খরচ</b>${ex.map(e=>row(esc(e.date+' '+e.cat),tk(e.amount))).join('')||'<p>কোনো খরচ নেই।</p>'}</div>`},
+mine:()=>`<div class="c"><b>আমার জমা</b>${D.dep.map(d=>row(esc(d.date)+' · '+L[d.type],tk(d.amount))).join('')||'<p>এখনও কোনো জমা নেই।</p>'}</div>`
+ +F('profile','তথ্য সংরক্ষণ',['name|নাম','father|বাবার নাম','mother|মায়ের নাম','dob|জন্মতারিখ|date','address|ঠিকানা'])+F('pin','PIN বদলান',['old|পুরনো PIN|password','pin|নতুন ৬ ডিজিট PIN|password'])
+ +`<button onclick="tok='';localStorage.tk='';D=null;go()">লগআউট</button>`,
+mem:()=>`<div class="c"><b>সদস্য তালিকা</b>${list.map(m=>`<div class="r mr" data-id="${esc(m.id)}"><span>${esc(m.id+' '+m.name)}${m.status=='cancelled'?' (বাতিল)':''}${m.c.alert?' ⚠':''}</span><span>${tk(m.c.saved)}${m.c.due?` <span class="bad">বকেয়া ${tk(m.c.due)}</span>`:''}${m.c.fine?` <span class="bad">জরিমানা ${tk(m.c.fine)}</span>`:''}</span></div>`).join('')}</div>`
+ +(sel?`<div class="c"><b>${esc(sel.id)} এর জমা</b>${sel.d.map(d=>`<div class="r"><span>${esc(d.date)} · ${L[d.type]}</span><span>${tk(d.amount)} <button class="x" data-del="${esc(d.id)}">মুছুন</button></span></div>`).join('')||'<p>কিছু নেই।</p>'}</div>`:''),
+adm:()=>F('dep','জমা এন্ট্রি',['memberId||m','type||s|M,F,L,O','amount|টাকা|number','date||date','method|পদ্ধতি (ব্যাংক/bKash/Nagad)','note|নোট'])
+ +F('expadd','খরচ এন্ট্রি',['cat|খাত','amount|টাকা|number','date||date','note|নোট'])
+ +F('waive','মাফ করুন',['memberId||m','kind||s|due,fine','amount|টাকা|number','note|কারণ'])
+ +F('addm','সদস্য যোগ',['id|আইডি (ফাঁকা = স্বয়ংক্রিয়)','name|নাম','father|বাবার নাম','mother|মায়ের নাম','mobile|মোবাইল (১১ ডিজিট)|tel','dob|জন্মতারিখ|date','address|ঠিকানা','joined|যোগদানের তারিখ|date','pin|প্রাথমিক PIN (৬ ডিজিট)'])
+ +F('rate','চাঁদার হার',['from|কোন মাস থেকে (YYYY-MM)','amt|মাসিক টাকা|number'])
+ +F('cancel','সদস্য বাতিল',['memberId||m','date||date'])+F('react','আবার চালু',['memberId||m'])+F('rpin','PIN রিসেট',['memberId||m','pin|নতুন PIN (৬ ডিজিট)'])
+ +(D.u.role=='owner'?F('role','ভূমিকা',['memberId||m','role||s|member,admin']):''),
+log:()=>`<div class="c"><b>লগ</b>${(sel&&sel.log||[]).map(l=>`<div class="r"><span>${esc(l.ts.slice(0,16))} ${esc(l.by)} ${esc(l.action)}</span></div><small>${esc(l.detail.slice(0,160))}</small>`).join('')}</div>`};
+function go(t){
+ if(!D){$('#n').innerHTML='';$('#v').innerHTML=`<form class="c" data-a="login"><b>লগইন</b><input name="mobile" type="tel" placeholder="মোবাইল নম্বর" autocomplete="username"><input name="pin" type="password" inputmode="numeric" placeholder="৬ ডিজিট PIN" autocomplete="current-password"><button>লগইন</button></form>`;return}
+ if(t)tab=t;const r=D.u.role,tabs=[['home','হোম'],['mine','আমার'],['mem','সদস্য']];if(r!='member')tabs.push(['adm','অ্যাডমিন']);if(r=='owner')tabs.push(['log','লগ']);
+ $('#n').innerHTML=tabs.map(([k,n])=>`<a href="#" data-t="${k}" class="${k==tab?'on':''}">${n}</a>`).join('');$('#v').innerHTML=pg[tab]()}
+async function load(){D=await api('me');list=await api('list');ex=await api('exp')}
+document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target,a=f.dataset.a,o=Object.fromEntries(new FormData(f));
+ if(a=='login'){const r=await api('login',o);tok=r.t;localStorage.tk=tok}else{await api(a,o);f.reset()}await load();go()});
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-t]'),m=e.target.closest('.mr'),d=e.target.closest('[data-del]');
+ if(t){e.preventDefault();sel=null;if(t.dataset.t=='log')sel={log:await api('log')};go(t.dataset.t)}
+ else if(d){if(confirm('এন্ট্রিটি মুছবেন?')){await api('deldep',{id:d.dataset.del});sel=null;await load();go()}}
+ else if(m&&D.u.role!='member'){sel={id:m.dataset.id,d:await api('md',{memberId:m.dataset.id})};go()}});
+(async()=>{if(tok){try{await load()}catch{}}go('home')})();
+</script></body></html>

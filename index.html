@@ -46,7 +46,7 @@ function go(t){
  if(!D){$('#n').innerHTML='';$('#v').innerHTML=`<form class="c" data-a="login"><b>লগইন</b><input name="mobile" type="tel" placeholder="মোবাইল নম্বর" autocomplete="username"><input name="pin" type="password" inputmode="numeric" placeholder="৬ ডিজিট PIN" autocomplete="current-password"><button>লগইন</button></form>`;return}
  if(t)tab=t;const r=D.u.role,tabs=[['home','হোম'],['mine','আমার'],['mem','সদস্য']];if(r!='member')tabs.push(['adm','অ্যাডমিন']);if(r=='owner')tabs.push(['log','লগ']);
  $('#n').innerHTML=tabs.map(([k,n])=>`<a href="#" data-t="${k}" class="${k==tab?'on':''}">${n}</a>`).join('');$('#v').innerHTML=pg[tab]()}
-async function load(){D=await api('me');list=await api('list');ex=await api('exp')}
+async function load(){const r=await api('init');D=r.m;list=r.l;ex=r.e}
 document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target,a=f.dataset.a,o=Object.fromEntries(new FormData(f));
  if(a=='login'){const r=await api('login',o);tok=r.t;localStorage.tk=tok}else{await api(a,o);f.reset()}await load();go()});
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-t]'),m=e.target.closest('.mr'),d=e.target.closest('[data-del]');
